@@ -54,6 +54,11 @@ was not measured in this layout; on the same two cards with CPU lanes it was 0.5
 
 ## What you need
 
+- **A pair CUDA cannot connect.** If CUDA already offers peer access between all your cards (the P2P guide's patched
+  driver, or its patched copy of `libcuda` for two generations), NCCL's own P2P transport comes before this fork's and
+  the fork changes nothing: use stock NCCL. An outside report with P2P on, an RTX 3060 + RTX 2070
+  ([#1](https://github.com/Cinderella-Man/drmshare/issues/1)), got `via P2P/direct pointer` from the fork, as stock
+  NCCL gives. Without `NCCL_DRMSHARE_TRANSPORT=1` (step 3) the fork is stock NCCL anyway.
 - **DRMShare working on your pair**: its `nvidia-drm` loaded with `peer_vidmem_dmabuf=1`, and its copy test passing
   ([volta-dmabuf.md](volta-dmabuf.md) for a V100, Pascal or Maxwell card, [dmabuf-615.md](dmabuf-615.md) for Turing and newer).
   Check: `cat /sys/module/nvidia_drm/parameters/peer_vidmem_dmabuf` prints `Y`.
@@ -135,6 +140,9 @@ the V100 + RTX 3090, 33.7 generating).
 - `-ts 3/1` gives three quarters of each layer to CUDA device 0. CUDA numbers the fastest card first, here the RTX
   3090; llama.cpp lists the devices in that order when it starts. Split by your cards' speed: on this pair `-ts 3/1`
   is the best for prompts and `-ts 3/2` for generation (37.4 tokens/s, Results).
+- On cards with different amounts of memory, split by memory first: without `-ts`, `-sm tensor` gives every card an
+  equal share of each layer, so the smaller card runs out first, and llama.cpp's automatic fit (`--fit`) does not
+  handle `-sm tensor`. llama.cpp-drmshare warns about it when it loads and prints a split by memory.
 - The overlap needs batches of 1,024 tokens or more (`-ub 1024` or `-ub 2048`) and cuts each layer into two chunks of
   tokens, so far only for the Qwen3.5 / 3.8 family (`qwen35` in llama.cpp). Other models still get the two lanes.
 

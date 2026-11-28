@@ -47,6 +47,10 @@ and two cards behind the same AMD chipset cannot share memory at all: nothing ar
 ([troubleshooting](docs/troubleshooting.md#two-cards-behind-one-amd-chipset-the-copy-finishes-nothing-arrives)).
 The changed module is loaded by hand and gone after a reboot.
 
+**Problems and field reports** about DRMShare, the NCCL fork (its repository has no issue tracker) or llama.cpp-drmshare:
+[issues here](https://github.com/Cinderella-Man/drmshare/issues). About CUDA P2P (the patched driver, the patched copy
+of `libcuda`): [the P2P guide's issues](https://github.com/Cinderella-Man/how-to-enable-p2p-on-nvidia-gpus/issues).
+
 ## Which page is yours
 
 | Your cards | Driver | Follow | Tested |
